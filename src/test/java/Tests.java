@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 
 public class Tests {
@@ -20,10 +21,15 @@ public class Tests {
     public static By checkout = By.id("checkout");
     public static By termsOfService = By.id("termsofservice");
     public static By successOrder = By.xpath("/descendant::div[contains(@class, 'order-completed')]/descendant::a[contains(@href, '/orderdetails/')]");
+    public static ChromeOptions options;
 
     @BeforeAll
     public static void beforeAll() {
-        driver = new ChromeDriver();
+        options = new ChromeOptions();
+        options.setCapability("browserVersion", "132");
+        options.addArguments("--headless=new");
+
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.navigate().to("https://demowebshop.tricentis.com/");
         Util.createUser(user, driver);
@@ -32,7 +38,7 @@ public class Tests {
 
     @BeforeEach
     public void setUp() {
-        driver = new ChromeDriver();
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.navigate().to("https://demowebshop.tricentis.com/");
 
