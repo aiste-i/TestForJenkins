@@ -28,6 +28,8 @@ public class Tests {
         options = new ChromeOptions();
         options.setCapability("browserVersion", "132");
         options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
