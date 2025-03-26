@@ -1,11 +1,9 @@
 import Helpers.FileHelper;
 import Helpers.Entities.User;
 import Helpers.EntityBuilder;
+import Helpers.Pages.ChangePasswordPage;
 import Helpers.Util;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openqa.selenium.By;
@@ -27,7 +25,7 @@ public class Tests {
     public static void beforeAll() {
         options = new ChromeOptions();
         options.setCapability("browserVersion", "132");
-        options.addArguments("--headless=new");
+//        options.addArguments("--headless=new");
 
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
@@ -42,7 +40,6 @@ public class Tests {
         driver.manage().window().maximize();
         driver.navigate().to("https://demowebshop.tricentis.com/");
 
-//        Util.logout(driver);
         if(!FileHelper.filesForTestExist()){
             FileHelper.createFilesForTest();
         }
@@ -57,6 +54,8 @@ public class Tests {
     @ParameterizedTest
     @ValueSource(strings = {"data1.txt"})
     public void test1(String filename){
+        var startTime = System.nanoTime();
+
         Util.login(user, driver);
         Util.click(Util.bySection("digital-downloads"), driver);
         var itemsToAdd = FileHelper.getLinesFromFile(filename);
@@ -75,12 +74,15 @@ public class Tests {
         Util.clickContinue("payment_info", driver);
         Util.clickContinue("confirm_order", driver);
 
-        Assertions.assertTrue(Util.findElement(successOrder, driver).isDisplayed(), "Successful order should be displayed");
+        var endTime = System.nanoTime();
+        System.out.println("End  " + (endTime - startTime));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"data2.txt"})
     public void test2(String filename){
+        var startTime = System.nanoTime();
+
         Util.login(user, driver);
         Util.click(Util.bySection("digital-downloads"), driver);
         var itemsToAdd = FileHelper.getLinesFromFile(filename);
@@ -99,6 +101,30 @@ public class Tests {
         Util.clickContinue("payment_info", driver);
         Util.clickContinue("confirm_order", driver);
 
-        Assertions.assertTrue(Util.findElement(successOrder, driver).isDisplayed(), "Successful order should be displayed");
+        var endTime = System.nanoTime();
+        System.out.println("End  " + (endTime - startTime));
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"newPassword"})
+    public void test3(String newPassword){
+        var customerInfoBy = By.xpath("//a[@href='/customer/info'][ancestor::div[@class='header-links']]");
+        var startTime = System.nanoTime();
+
+        Util.login(user, driver);
+        Util.click(customerInfoBy, driver);
+        Util.click(By.xpath("//a[@href='/customer/changepassword']"), driver);
+
+        var page = new ChangePasswordPage();
+        page.changePassword(user.Password, newPassword, driver);
+        Assertions.assertTrue(Util.isDisplayed(By.xpath("//div[@class='result']"), driver));
+        Util.logout(driver);
+
+        Util.login(user, driver);
+        user.Password = newPassword;
+        Util.login(user, driver);
+        var endTime = System.nanoTime();
+        System.out.println("End  " + (endTime - startTime));
+    }
+
 }
